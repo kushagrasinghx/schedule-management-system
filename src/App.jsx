@@ -6,18 +6,14 @@ import TaskItem from './components/TaskItem';
 import './styles.css';
 
 function App() {
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState(() => {
+    const saved = localStorage.getItem("tasks");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
-
-  useEffect(() => {
-    const savedTasks = localStorage.getItem("tasks");
-    if (savedTasks) {
-      setTasks(JSON.parse(savedTasks));
-    }
-  }, []);
 
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
@@ -45,7 +41,7 @@ function App() {
     if (!title || !date || !start || !end) {
       return alert("Please make sure all information is correct!");
     }
-    setTasks([...tasks, {
+    setTasks(prev => [...prev, {
       id: uuidv4(),
       title,
       date,
@@ -60,17 +56,17 @@ function App() {
   };
 
   const deleteTask = (id) => {
-    setTasks(tasks.filter(task => task.id !== id));
+    setTasks(prev => prev.filter(task => task.id !== id));
   };
 
   const toggleDone = (id) => {
-    setTasks(tasks.map(task =>
+    setTasks(prev => prev.map(task =>
       task.id === id ? { ...task, done: !task.done } : task
     ));
   };
 
   const renameTask = (id, newTitle) => {
-    setTasks(tasks.map(task =>
+    setTasks(prev => prev.map(task =>
       task.id === id ? { ...task, title: newTitle } : task
     ));
   };
