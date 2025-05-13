@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 import TaskItem from './components/TaskItem';
 import './styles.css';
 
@@ -73,6 +75,20 @@ function App() {
     ));
   };
 
+  const tileClassName = ({ date, view }) => {
+    if (view === 'month') {
+      const dateString = date.toISOString().split('T')[0];
+      const tasksForDate = tasks.filter(t => t.date === dateString);
+      const hasTasks = tasksForDate.length > 0;
+      const allDone = hasTasks && tasksForDate.every(t => t.done);
+      const somePending = hasTasks && tasksForDate.some(t => !t.done);
+
+      if (allDone) return 'calendar-completed';
+      if (somePending) return 'calendar-pending';
+    }
+    return null;
+  };
+
   return (
     <>
       <nav>
@@ -125,30 +141,7 @@ function App() {
 
         <div className="right-panel">
           <div className="calendar">
-            <h3>May 2025</h3>
-            <div className="calendar-grid">
-              {Array.from({ length: 30 }, (_, i) => {
-                const day = i + 1;
-                const dateString = new Date();
-                dateString.setDate(day);
-                const formatted = dateString.toISOString().split('T')[0];
-
-                const tasksForDate = tasks.filter(t => t.date === formatted);
-                const hasTasks = tasksForDate.length > 0;
-                const allDone = hasTasks && tasksForDate.every(t => t.done);
-                const somePending = hasTasks && tasksForDate.some(t => !t.done);
-
-                let dayClass = 'calendar-day';
-                if (allDone) dayClass += ' completed';
-                else if (somePending) dayClass += ' pending';
-
-                return (
-                  <div key={i} className={dayClass}>
-                    {day}
-                  </div>
-                );
-              })}
-            </div>
+            <Calendar tileClassName={tileClassName} />
           </div>
         </div>
       </div>
